@@ -5,14 +5,14 @@ users:
     shell: /usr/bin/zsh
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     ssh-authorized-keys:
-      - SSH_PUBLIC_KEY_ALPHA
-      - SSH_PUBLIC_KEY_BETA
-      - SSH_PUBLIC_KEY_DELTA
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFtQcMtGB55jBNuxxvlKXfeYLhy0wsPtIVt2KorpgXhQ budchris@alpha"
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFm804g6IUQO1ELH716hLjTBj3zzzbuOUbL3jCE7Gej8 budchris@bravo"
+      - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINNTDemhkFYx8kw6p096XBVp7H2gnONZLMX+4uDgwue/ budchris@delta"
 
 ssh_authorized_keys:
-  - SSH_PUBLIC_KEY_ALPHA
-  - SSH_PUBLIC_KEY_BETA
-  - SSH_PUBLIC_KEY_DELTA
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFtQcMtGB55jBNuxxvlKXfeYLhy0wsPtIVt2KorpgXhQ budchris@alpha"
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFm804g6IUQO1ELH716hLjTBj3zzzbuOUbL3jCE7Gej8 budchris@bravo"
+  - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINNTDemhkFYx8kw6p096XBVp7H2gnONZLMX+4uDgwue/ budchris@delta"
 
 package_update: true
 package_upgrade: true
@@ -122,19 +122,23 @@ runcmd:
   # Install DigitalOcean doctl
   - curl -sL https://github.com/digitalocean/doctl/releases/download/v1.97.0/doctl-1.97.0-linux-amd64.tar.gz | tar -xzv -C /usr/local/bin
 
-  # Create update script
-  - echo '#!/bin/bash' > /usr/local/bin/update-system.sh
-  - echo 'apt-get update && apt-get upgrade -y' >> /usr/local/bin/update-system.sh
-  - echo 'snap refresh' >> /usr/local/bin/update-system.sh
-  - echo 'echo "System and applications are up to date."' >> /usr/local/bin/update-system.sh
-  - chmod +x /usr/local/bin/update-system.sh
+  # Install Terraform
+  - curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+  - apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+  - apt-get update && apt-get install -y terraform
 
   # Install Starship prompt
   - curl -fsSL https://starship.rs/install.sh | bash -s -- -y
   - mkdir -p /home/player1/.config
   - echo 'eval "$(starship init zsh)"' >> /home/player1/.zshrc
   - echo 'eval "$(starship init bash)"' >> /home/player1/.bashrc
-
   - cp starship.toml /home/player1/.config/starship.toml
   - chown player1:player1 /home/player1/.config/starship.toml
+
+  # Create update script
+  - echo '#!/bin/bash' > /usr/local/bin/update-system.sh
+  - echo 'apt-get update && apt-get upgrade -y' >> /usr/local/bin/update-system.sh
+  - echo 'snap refresh' >> /usr/local/bin/update-system.sh
+  - echo 'echo "System and applications are up to date."' >> /usr/local/bin/update-system.sh
+  - chmod +x /usr/local/bin/update-system.sh
 
