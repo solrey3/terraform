@@ -141,6 +141,8 @@ runcmd:
   - tar xzf nvim-linux64.tar.gz
   - sudo mv nvim-linux64 /opt/nvim
   - sudo ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim
+  - git clone https://github.com/nvim-lua/kickstart.nvim.git "${XDG_CONFIG_HOME:-$HOME/.config}"/nvim
+  - cp dotfiles/nvim/init.lua "${XDG_CONFIG_HOME:-$HOME/.config}"/nvim/init.lua
   - rm nvim-linux64.tar.gz
 
   # Create update script
