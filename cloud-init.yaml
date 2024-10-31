@@ -130,10 +130,18 @@ runcmd:
   # Install Starship prompt
   - curl -fsSL https://starship.rs/install.sh | sh -s -- -y
   - mkdir -p /home/player1/.config
+  - chown player1:player1 /home/player1/.config
   - echo 'eval "$(starship init zsh)"' >> /home/player1/.zshrc
   - echo 'eval "$(starship init bash)"' >> /home/player1/.bashrc
   - cp starship.toml /home/player1/.config/starship.toml
   - chown player1:player1 /home/player1/.config/starship.toml
+
+  # Install the latest version of Neovim
+  - wget https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+  - tar xzf nvim-linux64.tar.gz
+  - sudo mv nvim-linux64 /opt/nvim
+  - sudo ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim
+  - rm nvim-linux64.tar.gz
 
   # Create update script
   - echo '#!/bin/bash' > /usr/local/bin/update-system.sh
