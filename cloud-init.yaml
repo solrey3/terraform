@@ -142,7 +142,7 @@ runcmd:
   - sudo mv nvim-linux64 /opt/nvim
   - sudo ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim
   - cp -r dotfiles/nvim /home/player1/.config/nvim
-  - chown player1:player1 /home/player1/.config/nvim/init.lua
+  - chown -R player1:player1 /home/player1/.config/nvim
   - rm nvim-linux64.tar.gz
 
   # Create update script
