@@ -18,45 +18,64 @@ package_update: true
 package_upgrade: true
 
 packages:
+  # Shells
   - zsh
+  - bash
+  # Multiplexers
   - tmux
+  # Text Editors
+  - vim
   - neovim
-  - docker.io
-  - docker-compose
-  - curl
+  # System Tools 
   - fzf
   - gawk
   - gcc
+  - git
   - gnupg
-  - sed
-  - tar
-  - htop
   - jq
   - lsof
   - mc
-  - nodejs
-  - yarn
   - ripgrep
   - rsync
+  - sed
   - stow
-  - tokei
+  - tar
   - tree
   - uuid-runtime
+  # Monitoring
+  - htop
+  # Networking
+  - curl
   - wget
-  - unzip
-  - vim
-  - zip
-  - git
+  # Development Tools
+  - nodejs
   - python3-pip
+  - tokei
+  - yarn
+  - docker.io
+  - docker-compose
+  # Archiving
+  - unzip
+  - zip
 
 runcmd:
+  # Set zsh as default shell and oh-my-zsh
   - chsh -s /usr/bin/zsh player1
   - su - player1 -c 'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
   # Include additional installation commands here (see next step)  
-  # Install kind
-  - curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
-  - chmod +x ./kind
-  - mv ./kind /usr/local/bin/kind
+
+  # Install Nerd Font JetBrains Mono
+  - su - player1 -c 'mkdir -p ~/.local/share/fonts'
+  - su - player1 -c 'wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/JetBrainsMono.zip -O JetBrainsMono.zip'
+  - su - player1 -c 'unzip JetBrainsMono.zip -d ~/.local/share/fonts'
+  - su - player1 -c 'fc-cache -fv'
+
+  # Install Starship prompt
+  - curl -fsSL https://starship.rs/install.sh | sh -s -- -y
+  - mkdir -p /home/player1/.config
+  - chown player1:player1 /home/player1/.config
+  - echo 'eval "$(starship init zsh)"' >> /home/player1/.zshrc
+  - echo 'eval "$(starship init bash)"' >> /home/player1/.bashrc
 
   # Install fastfetch
   - apt-get install -y cmake gcc libpci-dev
@@ -75,19 +94,6 @@ runcmd:
   - mv lazygit /usr/local/bin
   - rm lazygit.tar.gz
 
-  # Install just
-  - curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
-
-  # Install 1Password CLI
-  - curl -sS https://downloads.1password.com/linux/keys/1password.asc | apt-key add -
-  - echo 'deb [arch=amd64] https://downloads.1password.com/linux/debian/amd64 stable main' > /etc/apt/sources.list.d/1password.list
-  - apt update && apt install -y 1password-cli
-
-  # Install Bitwarden CLI
-  - curl -Lo bw.zip https://github.com/bitwarden/cli/releases/download/v1.19.0/bw-linux-1.19.0.zip
-  - unzip bw.zip -d /usr/local/bin
-  - rm bw.zip
-
   # Install GitHub CLI
   - curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
   - chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -99,11 +105,28 @@ runcmd:
   - su - player1 -c 'bash anaconda.sh -b -p $HOME/anaconda3'
   - su - player1 -c 'echo "export PATH=\$HOME/anaconda3/bin:\$PATH" >> $HOME/.zshrc'
 
-  # Install Nerd Font JetBrains Mono
-  - su - player1 -c 'mkdir -p ~/.local/share/fonts'
-  - su - player1 -c 'wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.3.3/JetBrainsMono.zip -O JetBrainsMono.zip'
-  - su - player1 -c 'unzip JetBrainsMono.zip -d ~/.local/share/fonts'
-  - su - player1 -c 'fc-cache -fv'
+  # Install just
+  - curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+
+  # Install kind
+  - curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+  - chmod +x ./kind
+  - mv ./kind /usr/local/bin/kind
+
+  # Install Terraform
+  - curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+  - apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+  - apt-get update && apt-get install -y terraform
+
+  # Install 1Password CLI
+  - curl -sS https://downloads.1password.com/linux/keys/1password.asc | apt-key add -
+  - echo 'deb [arch=amd64] https://downloads.1password.com/linux/debian/amd64 stable main' > /etc/apt/sources.list.d/1password.list
+  - apt update && apt install -y 1password-cli
+
+  # Install Bitwarden CLI
+  - curl -Lo bw.zip https://github.com/bitwarden/cli/releases/download/v1.19.0/bw-linux-1.19.0.zip
+  - unzip bw.zip -d /usr/local/bin
+  - rm bw.zip
 
   # Install GCP CLI
   - echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list
@@ -122,27 +145,11 @@ runcmd:
   # Install DigitalOcean doctl
   - curl -sL https://github.com/digitalocean/doctl/releases/download/v1.97.0/doctl-1.97.0-linux-amd64.tar.gz | tar -xzv -C /usr/local/bin
 
-  # Install Terraform
-  - curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-  - apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-  - apt-get update && apt-get install -y terraform
-
-  # Install Starship prompt
-  - curl -fsSL https://starship.rs/install.sh | sh -s -- -y
-  - mkdir -p /home/player1/.config
-  - chown player1:player1 /home/player1/.config
-  - echo 'eval "$(starship init zsh)"' >> /home/player1/.zshrc
-  - echo 'eval "$(starship init bash)"' >> /home/player1/.bashrc
-  - cp dotfiles/starship/starship.toml /home/player1/.config/starship.toml
-  - chown player1:player1 /home/player1/.config/starship.toml
-
   # Install the latest version of Neovim
   - wget https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
   - tar xzf nvim-linux64.tar.gz
   - sudo mv nvim-linux64 /opt/nvim
   - sudo ln -s /opt/nvim/bin/nvim /usr/local/bin/nvim
-  - cp -r dotfiles/nvim /home/player1/.config/nvim
-  - chown -R player1:player1 /home/player1/.config/nvim
   - rm nvim-linux64.tar.gz
 
   # Create update script
